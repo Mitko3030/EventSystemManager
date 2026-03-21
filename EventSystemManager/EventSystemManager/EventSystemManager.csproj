@@ -15,4 +15,12 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.14" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EventSystemManager.Services\EventSystemManager.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
+  </ItemGroup>
+
 </Project>
