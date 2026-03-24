@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using EventSystemManager.Data;
+using EventSystemManager.Data.Classes;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManagerEventSystem.Data
@@ -9,5 +11,7 @@ namespace ManagerEventSystem.Data
             : base(options)
         {
         }
+        public DbSet<Event> Events { get; set; } = null!;
+        public DbSet<Participant> Participants { get; set; }
     }
 }

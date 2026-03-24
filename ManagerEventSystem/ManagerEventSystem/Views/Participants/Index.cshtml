@@ -1,0 +1,29 @@
+﻿@model List<EventSystemManager.Data.Participant>
+
+<h2>Participants</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add Participant</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.FirstName</td>
+                <td>@p.LastName</td>
+                <td>@p.Email</td>
+                <td>@p.Phone</td>
+            </tr>
+        }
+    </tbody>
+</table>
