@@ -1,0 +1,44 @@
+﻿@model List<EventSystemManager.Data.Classes.Venue>
+
+@{
+    ViewData["Title"] = "Venues";
+}
+
+<h2>Venues</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add Venue</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>Capacity</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var v in Model)
+        {
+            <tr>
+                <td>@v.Name</td>
+                <td>@v.Address</td>
+                <td>@v.City</td>
+                <td>@v.Capacity</td>
+                <td>
+                    <form asp-action="Delete" asp-route-id="@v.Id" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit"
+                                class="btn btn-danger btn-sm"
+                                onclick="return confirm('Are you sure?')">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

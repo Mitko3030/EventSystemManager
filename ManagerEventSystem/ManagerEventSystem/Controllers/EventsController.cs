@@ -1,9 +1,8 @@
-﻿using EventSystemManager.Data;
-using EventSystemManager.Data.Classes;
+﻿using EventSystemManager.Data.Classes;
 using EventSystemManager.Services;
-using EventSystemManager.Services.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ManagerEventSystem.Controllers
 {
@@ -24,21 +23,41 @@ namespace ManagerEventSystem.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            await LoadDropdownsAsync();
             return View();
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Event model)
         {
             if (!ModelState.IsValid)
             {
+                await LoadDropdownsAsync();
                 return View(model);
             }
 
             await eventService.AddAsync(model);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await eventService.DeleteAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task LoadDropdownsAsync()
+        {
+            var categories = await eventService.GetAllCategoriesAsync();
+            ViewBag.Categories = new SelectList(categories, "Id", "Name");
+
+            var venues = await eventService.GetAllVenuesAsync();
+            ViewBag.Venues = new SelectList(venues, "Id", "Name");
         }
     }
 }

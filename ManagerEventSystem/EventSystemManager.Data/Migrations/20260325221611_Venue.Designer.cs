@@ -4,6 +4,7 @@ using ManagerEventSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventSystemManager.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260325221611_Venue")]
+    partial class Venue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,18 +61,16 @@ namespace EventSystemManager.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("VenueId")
                         .HasColumnType("int");
@@ -391,7 +392,7 @@ namespace EventSystemManager.Data.Migrations
             modelBuilder.Entity("EventSystemManager.Data.Classes.Registration", b =>
                 {
                     b.HasOne("EventSystemManager.Data.Classes.Event", "Event")
-                        .WithMany()
+                        .WithMany("Registrations")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -461,6 +462,11 @@ namespace EventSystemManager.Data.Migrations
             modelBuilder.Entity("EventSystemManager.Data.Classes.Category", b =>
                 {
                     b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("EventSystemManager.Data.Classes.Event", b =>
+                {
+                    b.Navigation("Registrations");
                 });
 
             modelBuilder.Entity("EventSystemManager.Data.Classes.Venue", b =>

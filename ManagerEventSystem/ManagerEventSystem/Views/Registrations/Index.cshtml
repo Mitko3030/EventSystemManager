@@ -1,0 +1,36 @@
+﻿@model List<EventSystemManager.Data.Classes.Registration>
+
+@{
+    ViewData["Title"] = "Registrations";
+}
+
+<h2>Registrations</h2>
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add Registration</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Event</th>
+            <th>Participant</th>
+            <th>Registered On</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.Event.Title</td>
+                <td>@r.Participant.FirstName</td>
+                <td>@r.RegisteredOn.ToString("dd/MM/yyyy")</td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@r.Id"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

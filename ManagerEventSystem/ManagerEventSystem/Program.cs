@@ -1,5 +1,4 @@
 using EventSystemManager.Services;
-using EventSystemManager.Services.Controllers;
 using ManagerEventSystem.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +25,9 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<ParticipantService>();
+builder.Services.AddScoped<RegistrationService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<VenueService>();
 
 var app = builder.Build();
 
