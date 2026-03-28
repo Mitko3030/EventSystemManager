@@ -988,4 +988,362 @@ namespace EventSystemManager.Tests
             Assert.AreEqual("Tech events", category.Description);
         }
     }
+    [TestClass]
+    public class AdditionalParticipantServiceTests
+{
+    private ApplicationDbContext CreateInMemoryDb()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        return new ApplicationDbContext(options);
+    }
+
+    [TestMethod]
+    public async Task GetByIdAsync_ReturnsCorrectParticipant()
+    {
+        var db = CreateInMemoryDb();
+        var service = new ParticipantService(db);
+        var participant = new Participant
+        {
+            FirstName = "Georgi",
+            LastName = "Georgiev",
+            Email = "georgi@test.com",
+            Phone = "0899999999"
+        };
+
+        await db.Participants.AddAsync(participant);
+        await db.SaveChangesAsync();
+
+        var result = await service.GetByIdAsync(participant.Id);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Georgi", result!.FirstName);
+        Assert.AreEqual("Georgiev", result.LastName);
+        Assert.AreEqual("georgi@test.com", result.Email);
+    }
+
+    [TestMethod]
+    public async Task GetByIdAsync_ReturnsNull_WhenParticipantNotFound()
+    {
+        var db = CreateInMemoryDb();
+        var service = new ParticipantService(db);
+
+        var result = await service.GetByIdAsync(999);
+
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task AddAsync_AddsMultipleParticipantsToDatabase()
+    {
+        var db = CreateInMemoryDb();
+        var service = new ParticipantService(db);
+
+        await service.AddAsync(new Participant
+        {
+            FirstName = "Ivan",
+            LastName = "Ivanov",
+            Email = "ivan@test.com"
+        });
+
+        await service.AddAsync(new Participant
+        {
+            FirstName = "Maria",
+            LastName = "Petrova",
+            Email = "maria@test.com"
+        });
+
+        var participants = await db.Participants.ToListAsync();
+
+        Assert.AreEqual(2, participants.Count);
+    }
+
+    [TestMethod]
+    public async Task DeleteAsync_RemovesOnlySelectedParticipant()
+    {
+        var db = CreateInMemoryDb();
+        var service = new ParticipantService(db);
+
+        var firstParticipant = new Participant
+        {
+            FirstName = "Ivan",
+            LastName = "Ivanov",
+            Email = "ivan@test.com"
+        };
+
+        var secondParticipant = new Participant
+        {
+            FirstName = "Maria",
+            LastName = "Petrova",
+            Email = "maria@test.com"
+        };
+
+        await db.Participants.AddRangeAsync(firstParticipant, secondParticipant);
+        await db.SaveChangesAsync();
+
+        await service.DeleteAsync(firstParticipant.Id);
+
+        var participants = await db.Participants.ToListAsync();
+
+        Assert.AreEqual(1, participants.Count);
+        Assert.AreEqual("Maria", participants[0].FirstName);
+    }
+
+    [TestMethod]
+    public void Participant_ToString_ReturnsExpectedFormat()
+    {
+        var participant = new Participant
+        {
+            Id = 1,
+            FirstName = "Ivan",
+            LastName = "Ivanov",
+            Email = "ivan@test.com"
+        };
+
+        var result = participant.ToString();
+
+        Assert.IsTrue(result.Contains("Ivan Ivanov"));
+        Assert.IsTrue(result.Contains("ivan@test.com"));
+        Assert.IsTrue(result.Contains("1"));
+    }
+}
+    [TestClass]
+public class AdditionalRegistrationTests
+{
+    private ApplicationDbContext CreateInMemoryDb()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        return new ApplicationDbContext(options);
+    }
+
+    [TestMethod]
+    public async Task AddAsync_SavesCorrectRegisteredOnDate()
+    {
+        var db = CreateInMemoryDb();
+        var service = new RegistrationService(db);
+
+        var ev = new Event
+        {
+            Title = "Conference",
+            Description = "Business event",
+            Date = DateTime.Now,
+            Location = "Burgas"
+        };
+
+        var participant = new Participant
+        {
+            FirstName = "Ivan",
+            LastName = "Ivanov",
+            Email = "ivan@test.com"
+        };
+
+        await db.Events.AddAsync(ev);
+        await db.Participants.AddAsync(participant);
+        await db.SaveChangesAsync();
+
+        var registeredOn = new DateTime(2026, 5, 10, 14, 30, 0);
+        var registration = new Registration
+        {
+            EventId = ev.Id,
+            ParticipantId = participant.Id,
+            RegisteredOn = registeredOn
+        };
+
+        await service.AddAsync(registration);
+
+        var result = await db.Registrations.FirstAsync();
+
+        Assert.AreEqual(2026, result.RegisteredOn.Year);
+        Assert.AreEqual(5, result.RegisteredOn.Month);
+        Assert.AreEqual(10, result.RegisteredOn.Day);
+        Assert.AreEqual(14, result.RegisteredOn.Hour);
+        Assert.AreEqual(30, result.RegisteredOn.Minute);
+    }
+
+    [TestMethod]
+    public async Task GetByIdAsync_ReturnsRegistrationWithCorrectRegisteredOn()
+    {
+        var db = CreateInMemoryDb();
+        var service = new RegistrationService(db);
+
+        var ev = new Event
+        {
+            Title = "Workshop",
+            Description = "Practical training",
+            Date = DateTime.Now,
+            Location = "Sofia"
+        };
+
+        var participant = new Participant
+        {
+            FirstName = "Maria",
+            LastName = "Petrova",
+            Email = "maria@test.com"
+        };
+
+        await db.Events.AddAsync(ev);
+        await db.Participants.AddAsync(participant);
+        await db.SaveChangesAsync();
+
+        var registration = new Registration
+        {
+            EventId = ev.Id,
+            ParticipantId = participant.Id,
+            RegisteredOn = new DateTime(2026, 6, 1)
+        };
+
+        await db.Registrations.AddAsync(registration);
+        await db.SaveChangesAsync();
+
+        var result = await service.GetByIdAsync(registration.Id);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(new DateTime(2026, 6, 1), result!.RegisteredOn);
+    }
+
+    [TestMethod]
+    public async Task DeleteAsync_DeletesCorrectRegistration_WhenThereAreMultiple()
+    {
+        var db = CreateInMemoryDb();
+        var service = new RegistrationService(db);
+
+        var ev1 = new Event
+        {
+            Title = "Event 1",
+            Description = "Desc",
+            Date = DateTime.Now,
+            Location = "Burgas"
+        };
+
+        var ev2 = new Event
+        {
+            Title = "Event 2",
+            Description = "Desc",
+            Date = DateTime.Now,
+            Location = "Varna"
+        };
+
+        var participant1 = new Participant
+        {
+            FirstName = "Ivan",
+            LastName = "Ivanov",
+            Email = "ivan@test.com"
+        };
+
+        var participant2 = new Participant
+        {
+            FirstName = "Maria",
+            LastName = "Petrova",
+            Email = "maria@test.com"
+        };
+
+        await db.Events.AddRangeAsync(ev1, ev2);
+        await db.Participants.AddRangeAsync(participant1, participant2);
+        await db.SaveChangesAsync();
+
+        var registration1 = new Registration
+        {
+            EventId = ev1.Id,
+            ParticipantId = participant1.Id,
+            RegisteredOn = DateTime.UtcNow
+        };
+
+        var registration2 = new Registration
+        {
+            EventId = ev2.Id,
+            ParticipantId = participant2.Id,
+            RegisteredOn = DateTime.UtcNow
+        };
+
+        await db.Registrations.AddRangeAsync(registration1, registration2);
+        await db.SaveChangesAsync();
+
+        await service.DeleteAsync(registration1.Id);
+
+        var registrations = await db.Registrations.ToListAsync();
+
+        Assert.AreEqual(1, registrations.Count);
+        Assert.AreEqual(registration2.Id, registrations[0].Id);
+    }
+
+    [TestMethod]
+    public void Registration_RegisteredOn_CanBeSetCorrectly()
+    {
+        var date = new DateTime(2026, 7, 20, 9, 15, 0);
+        var registration = new Registration
+        {
+            EventId = 1,
+            ParticipantId = 1,
+            RegisteredOn = date
+        };
+
+        Assert.AreEqual(date, registration.RegisteredOn);
+    }
+
+    [TestMethod]
+    public async Task GetAllAsync_ReturnsRegistrationsForDifferentEventsAndParticipants()
+    {
+        var db = CreateInMemoryDb();
+        var service = new RegistrationService(db);
+
+        var ev1 = new Event
+        {
+            Title = "Concert",
+            Description = "Music",
+            Date = DateTime.Now,
+            Location = "Burgas"
+        };
+
+        var ev2 = new Event
+        {
+            Title = "Seminar",
+            Description = "Education",
+            Date = DateTime.Now,
+            Location = "Sofia"
+        };
+
+        var participant1 = new Participant
+        {
+            FirstName = "Petar",
+            LastName = "Petrov",
+            Email = "petar@test.com"
+        };
+
+        var participant2 = new Participant
+        {
+            FirstName = "Elena",
+            LastName = "Ivanova",
+            Email = "elena@test.com"
+        };
+
+        await db.Events.AddRangeAsync(ev1, ev2);
+        await db.Participants.AddRangeAsync(participant1, participant2);
+        await db.SaveChangesAsync();
+
+        await db.Registrations.AddRangeAsync(
+            new Registration
+            {
+                EventId = ev1.Id,
+                ParticipantId = participant1.Id,
+                RegisteredOn = DateTime.UtcNow
+            },
+            new Registration
+            {
+                EventId = ev2.Id,
+                ParticipantId = participant2.Id,
+                RegisteredOn = DateTime.UtcNow
+            });
+
+        await db.SaveChangesAsync();
+
+        var result = await service.GetAllAsync();
+
+        Assert.AreEqual(2, result.Count);
+        Assert.IsTrue(result.Any(r => r.EventId == ev1.Id && r.ParticipantId == participant1.Id));
+        Assert.IsTrue(result.Any(r => r.EventId == ev2.Id && r.ParticipantId == participant2.Id));
+    }
+}
 }
