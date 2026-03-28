@@ -1,4 +1,4 @@
-﻿using EventSystemManager.Data;
+﻿using EventSystemManager.Data.Classes;
 using ManagerEventSystem.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +22,16 @@ namespace EventSystemManager.Services
         {
             await dbContext.Participants.AddAsync(model);
             await dbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var participant = await dbContext.Participants.FindAsync(id);
+            if (participant != null)
+            {
+                dbContext.Participants.Remove(participant);
+                await dbContext.SaveChangesAsync();
+            }
         }
     }
 }

@@ -1,28 +1,39 @@
 ﻿@model EventSystemManager.Data.Classes.Registration
-
 @{
     ViewData["Title"] = "Add Registration";
 }
 
-<h2>Add Registration</h2>
+<div class="row">
+    <div class="col-md-6">
+        <h2>Add Registration</h2>
 
-<form asp-action="Create" method="post">
-    <div class="mb-3">
-        <label asp-for="EventId" class="form-label">Event</label>
-        <select asp-for="EventId" asp-items="ViewBag.Events" class="form-select">
-            <option value="">-- Select Event --</option>
-        </select>
-        <span asp-validation-for="EventId" class="text-danger"></span>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <form asp-action="Create" method="post">
+            <div class="form-group mb-3">
+                <label asp-for="EventId" class="control-label">Event</label>
+                <select asp-for="EventId" asp-items="ViewBag.Events" class="form-control">
+                    <option value="">-- Select Event --</option>
+                </select>
+                <span asp-validation-for="EventId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ParticipantId" class="control-label">Participant</label>
+                <select asp-for="ParticipantId" asp-items="ViewBag.Participants" class="form-control">
+                    <option value="">-- Select Participant --</option>
+                </select>
+                <span asp-validation-for="ParticipantId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Register" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label asp-for="ParticipantId" class="form-label">Participant</label>
-        <select asp-for="ParticipantId" asp-items="ViewBag.Participants" class="form-select">
-            <option value="">-- Select Participant --</option>
-        </select>
-        <span asp-validation-for="ParticipantId" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Register</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

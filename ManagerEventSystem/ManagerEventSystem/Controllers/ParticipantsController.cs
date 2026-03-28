@@ -1,4 +1,4 @@
-﻿using EventSystemManager.Data;
+﻿using EventSystemManager.Data.Classes; 
 using EventSystemManager.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,14 +28,22 @@ namespace ManagerEventSystem.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Participant model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-
             await participantService.AddAsync(model);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await participantService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }

@@ -1,12 +1,11 @@
 ﻿@model EventSystemManager.Data.Classes.Event
-
 @{
     ViewData["Title"] = "Create Event";
 }
 
 <h2>Create Event</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div class="mb-3">
@@ -49,10 +48,37 @@
         <span asp-validation-for="VenueId" class="text-danger"></span>
     </div>
 
+  
+    <div class="mb-3">
+        <label class="form-label">Event Image</label>
+        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+        <small class="text-muted">Accepted: JPG, PNG, GIF</small>
+    </div>
+
+    
+    <div class="mb-3" id="imagePreview" style="display:none;">
+        <img id="previewImg" src="" alt="Preview"
+             style="max-height:200px; border-radius:8px;" />
+    </div>
+
     <button type="submit" class="btn btn-primary">Create Event</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        
+        document.querySelector('input[name="imageFile"]').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 }

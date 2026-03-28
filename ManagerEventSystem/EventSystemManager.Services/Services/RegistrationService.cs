@@ -46,13 +46,13 @@ namespace EventSystemManager.Services
             }
         }
 
-        // NEW: Get all events for the dropdown in Create Registration form
+        
         public async Task<List<Event>> GetAllEventsAsync()
         {
             return await dbContext.Events.ToListAsync();
         }
 
-        // NEW: Get all participants for the dropdown in Create Registration form
+        
         public async Task<List<Participant>> GetAllParticipantsAsync()
         {
             return await dbContext.Participants.ToListAsync();

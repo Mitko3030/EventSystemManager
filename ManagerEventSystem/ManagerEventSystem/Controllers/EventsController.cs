@@ -10,10 +10,12 @@ namespace ManagerEventSystem.Controllers
     public class EventsController : Controller
     {
         private readonly EventService eventService;
+        private readonly IWebHostEnvironment webHostEnvironment;
 
-        public EventsController(EventService eventService)
+        public EventsController(EventService eventService, IWebHostEnvironment webHostEnvironment)
         {
             this.eventService = eventService;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<IActionResult> Index()
@@ -31,12 +33,34 @@ namespace ManagerEventSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Event model)
+        public async Task<IActionResult> Create(Event model, IFormFile? imageFile)
         {
             if (!ModelState.IsValid)
             {
                 await LoadDropdownsAsync();
                 return View(model);
+            }
+
+            
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                string uploadsFolder = Path.Combine(webHostEnvironment.WebRootPath, "images", "events");
+
+                
+                Directory.CreateDirectory(uploadsFolder);
+
+                
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+
+                
+                model.ImageUrl = "/images/events/" + uniqueFileName;
             }
 
             await eventService.AddAsync(model);

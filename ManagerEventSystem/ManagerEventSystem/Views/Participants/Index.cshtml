@@ -1,7 +1,9 @@
-﻿@model List<EventSystemManager.Data.Participant>
+﻿@model List<EventSystemManager.Data.Classes.Participant>
+@{
+    ViewData["Title"] = "Participants";
+}
 
 <h2>Participants</h2>
-
 <p>
     <a asp-action="Create" class="btn btn-primary">Add Participant</a>
 </p>
@@ -13,6 +15,7 @@
             <th>Last Name</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -23,7 +26,22 @@
                 <td>@p.LastName</td>
                 <td>@p.Email</td>
                 <td>@p.Phone</td>
+                <td>
+                    <form asp-action="Delete" asp-route-id="@p.Id" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit"
+                                class="btn btn-danger btn-sm"
+                                onclick="return confirm('Are you sure you want to delete this participant?')">
+                            Delete
+                        </button>
+                    </form>
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+@if (!Model.Any())
+{
+    <p>No participants yet.</p>
+}

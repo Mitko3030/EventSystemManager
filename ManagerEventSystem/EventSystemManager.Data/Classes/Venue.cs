@@ -10,7 +10,7 @@ namespace EventSystemManager.Data.Classes
         public string City { get; set; } = null!;
         public int Capacity { get; set; }
 
-        // Navigation property
+        
         public List<Event> Events { get; set; } = new List<Event>();
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EventSystemManager.Data
+namespace EventSystemManager.Data.Classes
 {
     public class Participant
     {
@@ -20,8 +20,8 @@ namespace EventSystemManager.Data
 
         public string? Phone { get; set; }
 
-        // Navigation property (optional for later)
-        //public List<Registration> Registrations { get; set; } = new List<Registration>();
+      
+        public List<Registration> Registrations { get; set; } = new List<Registration>();
 
         public string GetFullName()
         {

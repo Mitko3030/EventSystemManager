@@ -1,8 +1,11 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Начало";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center py-5">
+    <h1 class="display-4 fw-bold">Добре дошли в ManagerEventSystem</h1>
+    <p class="lead text-muted">Управлявайте и откривайте събития лесно и бързо.</p>
+    <a asp-controller="Events" asp-action="Index" class="btn btn-dark btn-lg mt-3">
+        Разгледай Събитията
+    </a>
 </div>
